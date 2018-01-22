@@ -1,6 +1,7 @@
 package backoff
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/http"
@@ -22,7 +23,7 @@ func NewRequest(attempts, exponent int) *Request {
 }
 
 // Get ...
-func (r *Request) Get(target string) (*http.Response, error) {
+func (r *Request) Get(ctx context.Context, target string) (*http.Response, error) {
 	var (
 		resp    *http.Response
 		err     error
@@ -35,6 +36,12 @@ func (r *Request) Get(target string) (*http.Response, error) {
 	timeout = 1
 
 	for i := 1; i <= r.Attempts; i++ {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
 		client := &http.Client{
 			Timeout: time.Second * time.Duration(timeout),
 		}
@@ -43,6 +50,12 @@ func (r *Request) Get(target string) (*http.Response, error) {
 		timeout = timeout * r.Exponent
 
 		resp, err = client.Get(target)
+
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
 
 		if timeoutError(err) {
 			fmt.Printf("request timeout %s.\n", target)

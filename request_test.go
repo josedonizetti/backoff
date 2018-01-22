@@ -1,6 +1,7 @@
 package backoff
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,6 +17,8 @@ type test struct {
 }
 
 func TestAllAttemptsTimeoutReturnsTimeoutError(t *testing.T) {
+	ctx := context.Background()
+
 	tests := []test{
 		{attempts: 1, expectedAttempts: 1, exponent: 2, waitingTime: "3s"},
 		{attempts: 2, expectedAttempts: 2, exponent: 2, waitingTime: "4s"},
@@ -34,7 +37,7 @@ func TestAllAttemptsTimeoutReturnsTimeoutError(t *testing.T) {
 		defer ts.Close()
 
 		req := NewRequest(test.attempts, test.exponent)
-		_, err := req.Get(ts.URL)
+		_, err := req.Get(ctx, ts.URL)
 
 		if test.expectedAttempts != actualAttempts {
 			t.Errorf("expecting %s but got", test.expectedAttempts, actualAttempts)
@@ -53,6 +56,8 @@ func TestAllAttemptsTimeoutReturnsTimeoutError(t *testing.T) {
 }
 
 func TestIfAnyAttemptsSucceedsReturnsResponse(t *testing.T) {
+	ctx := context.Background()
+
 	tests := []test{
 		{attempts: 100, expectedAttempts: 1, exponent: 2, waitingTime: "0s"},
 		{attempts: 100, expectedAttempts: 2, exponent: 2, waitingTime: "1s"},
@@ -71,7 +76,7 @@ func TestIfAnyAttemptsSucceedsReturnsResponse(t *testing.T) {
 		defer ts.Close()
 
 		req := NewRequest(test.attempts, test.exponent)
-		resp, err := req.Get(ts.URL)
+		resp, err := req.Get(ctx, ts.URL)
 
 		if test.expectedAttempts != actualAttempts {
 			t.Errorf("expecting %d but got %d", test.expectedAttempts, actualAttempts)
@@ -94,6 +99,8 @@ func TestIfAnyAttemptsSucceedsReturnsResponse(t *testing.T) {
 }
 
 func TestExponentIncreasesOnEachAttempt(t *testing.T) {
+	ctx := context.Background()
+
 	tests := []test{
 		{attempts: 100, expectedAttempts: 4, exponent: 3, waitingTime: "10s"},
 		{attempts: 100, expectedAttempts: 2, exponent: 15, waitingTime: "10s"},
@@ -111,7 +118,7 @@ func TestExponentIncreasesOnEachAttempt(t *testing.T) {
 		defer ts.Close()
 
 		req := NewRequest(test.attempts, test.exponent)
-		resp, err := req.Get(ts.URL)
+		resp, err := req.Get(ctx, ts.URL)
 
 		if test.expectedAttempts != actualAttempts {
 			t.Errorf("expecting %d but got %d", test.expectedAttempts, actualAttempts)
@@ -133,11 +140,9 @@ func TestExponentIncreasesOnEachAttempt(t *testing.T) {
 	}
 }
 
-// diff error
-// 3 attempts and diff error
-// 2 attempts and diff error
-// 1 attempt and diff error
 func TestServerReturnDiffError(t *testing.T) {
+	ctx := context.Background()
+
 	tests := []test{
 		{attempts: 1, expectedAttempts: 1, exponent: 2},
 		{attempts: 50, expectedAttempts: 1, exponent: 2},
@@ -154,7 +159,7 @@ func TestServerReturnDiffError(t *testing.T) {
 		defer ts.Close()
 
 		req := NewRequest(test.attempts, test.exponent)
-		resp, err := req.Get(ts.URL)
+		resp, err := req.Get(ctx, ts.URL)
 
 		if test.expectedAttempts != actualAttempts {
 			t.Errorf("expecting %d but got %d", test.expectedAttempts, actualAttempts)
