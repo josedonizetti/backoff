@@ -5,12 +5,22 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/josedonizetti/backoff"
+	"gopkg.in/alecthomas/kingpin.v2"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
+var (
+	target   = kingpin.Arg("target", "Target URL").Required().String()
+	attempts = kingpin.Flag("attempts", "Number of attempts").Short('a').Default("3").Int()
+	exponent = kingpin.Flag("exponent", "Tiemout exponent").Short('e').Default("2").Int()
+)
+
 func main() {
+	kingpin.Version("0.0.1")
+	kingpin.Parse()
+
 	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stdout))
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -25,13 +35,9 @@ func main() {
 		cancel()
 	}()
 
-	target := "https://httpbin.org/delay/3"
-	attempts := 3
-	exponent := 2
-
 	level.Info(logger).Log("msg", "Starting backoff")
-	request := backoff.NewRequest(attempts, exponent, logger)
-	resp, err := request.Get(ctx, target)
+	request := backoff.NewRequest(*attempts, *exponent, logger)
+	resp, err := request.Get(ctx, *target)
 
 	if contextCanceled(err) {
 		os.Exit(0)
