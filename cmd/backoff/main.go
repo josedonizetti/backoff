@@ -2,7 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/josedonizetti/backoff"
 	"os"
 	"os/signal"
@@ -10,6 +11,8 @@ import (
 )
 
 func main() {
+	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stdout))
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -18,7 +21,7 @@ func main() {
 
 	go func() {
 		<-term
-		fmt.Println("Stopping...")
+		level.Info(logger).Log("msg", "Stopping backoff")
 		cancel()
 	}()
 
@@ -26,21 +29,20 @@ func main() {
 	attempts := 3
 	exponent := 2
 
-	request := backoff.NewRequest(attempts, exponent)
+	level.Info(logger).Log("msg", "Starting backoff")
+	request := backoff.NewRequest(attempts, exponent, logger)
 	resp, err := request.Get(ctx, target)
 
 	if contextCanceled(err) {
 		os.Exit(0)
-		return
 	}
 
 	if err != nil {
-		fmt.Printf("error %v\n", err)
+		level.Info(logger).Log("msg", "Unexpected error", "err", err)
 		os.Exit(1)
-		return
 	}
 
-	fmt.Printf("request completed %d.\n", resp.StatusCode)
+	level.Info(logger).Log("msg", "Request completed", "stauts_code", resp.StatusCode)
 	os.Exit(0)
 }
 

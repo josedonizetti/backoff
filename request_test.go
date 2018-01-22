@@ -2,6 +2,7 @@ package backoff
 
 import (
 	"context"
+	"github.com/go-kit/kit/log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -18,6 +19,7 @@ type test struct {
 
 func TestAllAttemptsTimeoutReturnsTimeoutError(t *testing.T) {
 	ctx := context.Background()
+	logger := log.NewNopLogger()
 
 	tests := []test{
 		{attempts: 1, expectedAttempts: 1, exponent: 2, waitingTime: "3s"},
@@ -36,7 +38,7 @@ func TestAllAttemptsTimeoutReturnsTimeoutError(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		req := NewRequest(test.attempts, test.exponent)
+		req := NewRequest(test.attempts, test.exponent, logger)
 		_, err := req.Get(ctx, ts.URL)
 
 		if test.expectedAttempts != actualAttempts {
@@ -57,6 +59,7 @@ func TestAllAttemptsTimeoutReturnsTimeoutError(t *testing.T) {
 
 func TestIfAnyAttemptsSucceedsReturnsResponse(t *testing.T) {
 	ctx := context.Background()
+	logger := log.NewNopLogger()
 
 	tests := []test{
 		{attempts: 100, expectedAttempts: 1, exponent: 2, waitingTime: "0s"},
@@ -75,7 +78,7 @@ func TestIfAnyAttemptsSucceedsReturnsResponse(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		req := NewRequest(test.attempts, test.exponent)
+		req := NewRequest(test.attempts, test.exponent, logger)
 		resp, err := req.Get(ctx, ts.URL)
 
 		if test.expectedAttempts != actualAttempts {
@@ -100,6 +103,7 @@ func TestIfAnyAttemptsSucceedsReturnsResponse(t *testing.T) {
 
 func TestExponentIncreasesOnEachAttempt(t *testing.T) {
 	ctx := context.Background()
+	logger := log.NewNopLogger()
 
 	tests := []test{
 		{attempts: 100, expectedAttempts: 4, exponent: 3, waitingTime: "10s"},
@@ -117,7 +121,7 @@ func TestExponentIncreasesOnEachAttempt(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		req := NewRequest(test.attempts, test.exponent)
+		req := NewRequest(test.attempts, test.exponent, logger)
 		resp, err := req.Get(ctx, ts.URL)
 
 		if test.expectedAttempts != actualAttempts {
@@ -142,6 +146,7 @@ func TestExponentIncreasesOnEachAttempt(t *testing.T) {
 
 func TestServerReturnDiffError(t *testing.T) {
 	ctx := context.Background()
+	logger := log.NewNopLogger()
 
 	tests := []test{
 		{attempts: 1, expectedAttempts: 1, exponent: 2},
@@ -158,7 +163,7 @@ func TestServerReturnDiffError(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		req := NewRequest(test.attempts, test.exponent)
+		req := NewRequest(test.attempts, test.exponent, logger)
 		resp, err := req.Get(ctx, ts.URL)
 
 		if test.expectedAttempts != actualAttempts {

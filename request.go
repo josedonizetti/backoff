@@ -2,7 +2,8 @@ package backoff
 
 import (
 	"context"
-	"fmt"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"net"
 	"net/http"
 	"time"
@@ -10,15 +11,17 @@ import (
 
 // Request ...
 type Request struct {
+	logger   log.Logger
 	Attempts int
 	Exponent int
 }
 
 // NewRequest ...
-func NewRequest(attempts, exponent int) *Request {
+func NewRequest(attempts, exponent int, logger log.Logger) *Request {
 	return &Request{
 		Attempts: attempts,
 		Exponent: exponent,
+		logger:   logger,
 	}
 }
 
@@ -58,7 +61,7 @@ func (r *Request) Get(ctx context.Context, target string) (*http.Response, error
 		}
 
 		if timeoutError(err) {
-			fmt.Printf("request timeout %s.\n", target)
+			level.Info(r.logger).Log("msg", "Request timeout", "target", target)
 			continue
 		}
 
