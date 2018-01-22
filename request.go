@@ -35,7 +35,7 @@ func (r *Request) Get(ctx context.Context, target string) (*http.Response, error
 
 	timeout = 1
 
-	for i := 1; i <= r.Attempts; i++ {
+	for i := 0; i < r.Attempts; i++ {
 		select {
 		case <-ctx.Done():
 			return nil, ctx.Err()
