@@ -67,6 +67,7 @@ func (b *backoff) Get(ctx context.Context, target string) (*http.Response, error
 			return nil, err
 		}
 
+		// set context to be able to cancel the request
 		req = req.WithContext(ctx)
 		resp, err = client.Do(req)
 
