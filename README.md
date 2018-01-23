@@ -7,6 +7,22 @@ $ go get -u github.com/josedonizetti/backoff/cmd/...
 $ backoff --help
 ```
 
+# Usage
+```
+$ backoff --help
+usage: backoff [<flags>] <target>
+
+Flags:
+      --help        Show context-sensitive help (also try --help-long and
+                    --help-man).
+  -a, --attempts=3  Number of attempts
+  -e, --exponent=2  Timeout exponent
+      --version     Show application version.
+
+Args:
+  <target>  Target URL
+```
+
 # Example
 ```sh
 $ backoff https://httpbin.org/delay/3
