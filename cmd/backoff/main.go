@@ -15,7 +15,7 @@ import (
 var (
 	target   = kingpin.Arg("target", "Target URL").Required().String()
 	attempts = kingpin.Flag("attempts", "Number of attempts").Short('a').Default("3").Int()
-	exponent = kingpin.Flag("exponent", "Tiemout exponent").Short('e').Default("2").Int()
+	exponent = kingpin.Flag("exponent", "Timeout exponent").Short('e').Default("2").Int()
 )
 
 func main() {
