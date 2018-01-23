@@ -24,3 +24,4 @@ $ docker run josedonizetti/backoff https://httpbin.org/delay/3
 - [Logger as a dependecy](https://peter.bourgon.org/go-best-practices-2016/#top-tip-10)
 - [kingpin](https://github.com/alecthomas/kingpin) for command-line flags
 - [godep](https://github.com/tools/godep) dependecy management
+- [go-kit](https://github.com/go-kit/kit/tree/master/log) for logging
