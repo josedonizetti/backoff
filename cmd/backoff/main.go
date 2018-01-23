@@ -43,9 +43,13 @@ func main() {
 		os.Exit(0)
 	}
 
-	if err != nil {
+	if err != nil && !backoff.TimeoutError(err) {
 		level.Info(logger).Log("msg", "Unexpected error", "err", err)
 		os.Exit(1)
+	}
+
+	if err != nil && backoff.TimeoutError(err) {
+		os.Exit(0)
 	}
 
 	level.Info(logger).Log("msg", "Request completed", "stauts_code", resp.StatusCode)

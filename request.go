@@ -60,7 +60,7 @@ func (r *Request) Get(ctx context.Context, target string) (*http.Response, error
 		default:
 		}
 
-		if timeoutError(err) {
+		if TimeoutError(err) {
 			level.Info(r.logger).Log("msg", "Request timeout", "target", target)
 			continue
 		}
@@ -75,7 +75,8 @@ func (r *Request) Get(ctx context.Context, target string) (*http.Response, error
 	return nil, err
 }
 
-func timeoutError(err error) bool {
+// TimeoutError ...
+func TimeoutError(err error) bool {
 	if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
 		return true
 	}

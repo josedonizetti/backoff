@@ -51,7 +51,7 @@ func TestAllAttemptsTimeoutReturnsTimeoutError(t *testing.T) {
 			return
 		}
 
-		if !timeoutError(err) {
+		if !TimeoutError(err) {
 			t.Errorf("expecting a timeout error, but got: '%v'", err)
 		}
 	}
