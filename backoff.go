@@ -57,23 +57,17 @@ func (b *backoff) Get(ctx context.Context, target string) (*http.Response, error
 	timeout = 1
 
 	for i := 0; i < b.attempts; i++ {
-		select {
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		default:
-		}
-
 		client := &http.Client{
 			Timeout: time.Second * time.Duration(timeout),
 		}
 
-		resp, err = client.Get(target)
-
-		select {
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		default:
+		req, err := http.NewRequest("GET", target, nil)
+		if err != nil {
+			return nil, err
 		}
+
+		req = req.WithContext(ctx)
+		resp, err = client.Do(req)
 
 		if TimeoutError(err) {
 			level.Info(b.logger).Log("msg", "Request timeout", "target", target, "attempt", i+1, "timeout", timeout)

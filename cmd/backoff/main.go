@@ -6,6 +6,7 @@ import (
 	"github.com/go-kit/kit/log/level"
 	"github.com/josedonizetti/backoff"
 	"gopkg.in/alecthomas/kingpin.v2"
+	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -49,7 +50,7 @@ func main() {
 	}
 
 	if err != nil && !backoff.TimeoutError(err) {
-		level.Info(logger).Log("msg", "Unexpected error", "err", err)
+		level.Info(logger).Log("msg", "Error", "err", err)
 		return
 	}
 
@@ -61,5 +62,11 @@ func main() {
 }
 
 func contextCanceled(err error) bool {
-	return err == context.Canceled
+	// Don't really like doing this check, but unfortunately the net/http.Client
+	// wraps the context error before returning
+	// https://github.com/golang/go/blob/master/src/net/http/client.go#L522
+	if err, ok := err.(*url.Error); ok {
+		return err.Err == context.Canceled
+	}
+	return false
 }
