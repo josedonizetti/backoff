@@ -9,24 +9,28 @@ import (
 	"time"
 )
 
-// Request ...
-type Request struct {
-	logger   log.Logger
-	Attempts int
-	Exponent int
+// Backoff ...
+type Backoff interface {
+	Get(context.Context, string) (*http.Response, error)
 }
 
-// NewRequest ...
-func NewRequest(attempts, exponent int, logger log.Logger) *Request {
-	return &Request{
-		Attempts: attempts,
-		Exponent: exponent,
+type backoff struct {
+	logger   log.Logger
+	attempts int
+	exponent int
+}
+
+// New ...
+func New(attempts, exponent int, logger log.Logger) Backoff {
+	return &backoff{
+		attempts: attempts,
+		exponent: exponent,
 		logger:   logger,
 	}
 }
 
 // Get ...
-func (r *Request) Get(ctx context.Context, target string) (*http.Response, error) {
+func (b *backoff) Get(ctx context.Context, target string) (*http.Response, error) {
 	var (
 		resp    *http.Response
 		err     error
@@ -38,7 +42,7 @@ func (r *Request) Get(ctx context.Context, target string) (*http.Response, error
 
 	timeout = 1
 
-	for i := 0; i < r.Attempts; i++ {
+	for i := 0; i < b.attempts; i++ {
 		select {
 		case <-ctx.Done():
 			return nil, ctx.Err()
@@ -50,7 +54,7 @@ func (r *Request) Get(ctx context.Context, target string) (*http.Response, error
 		}
 
 		// calculate next timeout
-		timeout = timeout * r.Exponent
+		timeout = timeout * b.exponent
 
 		resp, err = client.Get(target)
 
@@ -61,7 +65,7 @@ func (r *Request) Get(ctx context.Context, target string) (*http.Response, error
 		}
 
 		if TimeoutError(err) {
-			level.Info(r.logger).Log("msg", "Request timeout", "target", target)
+			level.Info(b.logger).Log("msg", "Request timeout", "target", target)
 			continue
 		}
 

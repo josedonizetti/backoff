@@ -36,7 +36,7 @@ func main() {
 	}()
 
 	level.Info(logger).Log("msg", "Starting backoff")
-	request := backoff.NewRequest(*attempts, *exponent, logger)
+	request := backoff.New(*attempts, *exponent, logger)
 	resp, err := request.Get(ctx, *target)
 
 	if contextCanceled(err) {

@@ -38,7 +38,7 @@ func TestAllAttemptsTimeoutReturnsTimeoutError(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		req := NewRequest(test.attempts, test.exponent, logger)
+		req := New(test.attempts, test.exponent, logger)
 		_, err := req.Get(ctx, ts.URL)
 
 		if test.expectedAttempts != actualAttempts {
@@ -78,7 +78,7 @@ func TestIfAnyAttemptsSucceedsReturnsResponse(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		req := NewRequest(test.attempts, test.exponent, logger)
+		req := New(test.attempts, test.exponent, logger)
 		resp, err := req.Get(ctx, ts.URL)
 
 		if test.expectedAttempts != actualAttempts {
@@ -121,7 +121,7 @@ func TestExponentIncreasesOnEachAttempt(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		req := NewRequest(test.attempts, test.exponent, logger)
+		req := New(test.attempts, test.exponent, logger)
 		resp, err := req.Get(ctx, ts.URL)
 
 		if test.expectedAttempts != actualAttempts {
@@ -163,7 +163,7 @@ func TestServerReturnDiffError(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		req := NewRequest(test.attempts, test.exponent, logger)
+		req := New(test.attempts, test.exponent, logger)
 		resp, err := req.Get(ctx, ts.URL)
 
 		if test.expectedAttempts != actualAttempts {
