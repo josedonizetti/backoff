@@ -27,11 +27,14 @@ Args:
 ```sh
 $ backoff https://httpbin.org/delay/3
 $ backoff -a2 https://httpbin.org/delay/3
+$ backoff -a2 -e5 https://httpbin.org/delay/3
 ```
 
 # Docker
 ```sh
 $ docker run josedonizetti/backoff https://httpbin.org/delay/3
+$ docker run josedonizetti/backoff -a2 https://httpbin.org/delay/3
+$ docker run josedonizetti/backoff -a2 -e5 https://httpbin.org/delay/3
 ```
 
 # Design Decisions
