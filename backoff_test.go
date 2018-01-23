@@ -38,7 +38,7 @@ func TestAllAttemptsTimeoutReturnsTimeoutError(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		req := New(test.attempts, test.exponent, logger)
+		req, _ := New(test.attempts, test.exponent, logger)
 		_, err := req.Get(ctx, ts.URL)
 
 		if test.expectedAttempts != actualAttempts {
@@ -78,7 +78,7 @@ func TestIfAnyAttemptsSucceedsReturnsResponse(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		req := New(test.attempts, test.exponent, logger)
+		req, _ := New(test.attempts, test.exponent, logger)
 		resp, err := req.Get(ctx, ts.URL)
 
 		if test.expectedAttempts != actualAttempts {
@@ -121,7 +121,7 @@ func TestExponentIncreasesOnEachAttempt(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		req := New(test.attempts, test.exponent, logger)
+		req, _ := New(test.attempts, test.exponent, logger)
 		resp, err := req.Get(ctx, ts.URL)
 
 		if test.expectedAttempts != actualAttempts {
@@ -163,7 +163,7 @@ func TestServerReturnDiffError(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		req := New(test.attempts, test.exponent, logger)
+		req, _ := New(test.attempts, test.exponent, logger)
 		resp, err := req.Get(ctx, ts.URL)
 
 		if test.expectedAttempts != actualAttempts {
@@ -183,5 +183,21 @@ func TestServerReturnDiffError(t *testing.T) {
 		if resp.StatusCode != http.StatusInternalServerError {
 			t.Errorf("expected http code 500 but got %d", resp.StatusCode)
 		}
+	}
+}
+
+func TestAttemptZeroReturnError(t *testing.T) {
+	logger := log.NewNopLogger()
+	_, err := New(0, 2, logger)
+	if err != ErrAttemptIsZero {
+		t.Errorf("Expeceted ErrAttemptIsZero, got %v", err)
+	}
+}
+
+func TestExponentZeroReturnError(t *testing.T) {
+	logger := log.NewNopLogger()
+	_, err := New(1, 0, logger)
+	if err != ErrExponentIsZero {
+		t.Errorf("Expeceted ErrExponentIsZero, got %v", err)
 	}
 }

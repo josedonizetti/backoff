@@ -2,11 +2,19 @@ package backoff
 
 import (
 	"context"
+	"errors"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"net"
 	"net/http"
 	"time"
+)
+
+var (
+	// ErrAttemptIsZero ...
+	ErrAttemptIsZero = errors.New("Attempt cannot be zero")
+	// ErrExponentIsZero ...
+	ErrExponentIsZero = errors.New("Exponent cannot be zero")
 )
 
 // Backoff ...
@@ -21,12 +29,20 @@ type backoff struct {
 }
 
 // New ...
-func New(attempts, exponent int, logger log.Logger) Backoff {
+func New(attempts, exponent int, logger log.Logger) (Backoff, error) {
+	if attempts == 0 {
+		return nil, ErrAttemptIsZero
+	}
+
+	if exponent == 0 {
+		return nil, ErrExponentIsZero
+	}
+
 	return &backoff{
 		attempts: attempts,
 		exponent: exponent,
 		logger:   logger,
-	}
+	}, nil
 }
 
 // Get ...
@@ -36,9 +52,6 @@ func (b *backoff) Get(ctx context.Context, target string) (*http.Response, error
 		err     error
 		timeout int
 	)
-
-	// need to validate if attemps is 0
-	// need to validate if emponent is 0
 
 	timeout = 1
 
