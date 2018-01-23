@@ -6,7 +6,7 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"net/http"
-	"net/url"
+	"net"
 	"time"
 )
 
@@ -91,7 +91,7 @@ func (b *backoff) Get(ctx context.Context, target string) (*http.Response, error
 
 // TimeoutError verifies if an error was a timeout.
 func TimeoutError(err error) bool {
-	if netErr, ok := err.(*url.Error); ok && netErr.Timeout() {
+	if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
 		return true
 	}
 	return false
