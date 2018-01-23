@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	// ErrAttemptIsZero ...
+	// ErrAttemptIsZero is the error returned when an attempt is zero.
 	ErrAttemptIsZero = errors.New("Attempt cannot be zero")
-	// ErrExponentIsZero ...
+	// ErrExponentIsZero is the error returned when exponent is zero.
 	ErrExponentIsZero = errors.New("Exponent cannot be zero")
 )
 
@@ -28,7 +28,7 @@ type backoff struct {
 	exponent int
 }
 
-// New ...
+// New return a Backoff that can retries request.
 func New(attempts, exponent int, logger log.Logger) (Backoff, error) {
 	if attempts == 0 {
 		return nil, ErrAttemptIsZero
@@ -45,7 +45,8 @@ func New(attempts, exponent int, logger log.Logger) (Backoff, error) {
 	}, nil
 }
 
-// Get ...
+// Get retries a request based on Backoff attempts, increasing the timeout by
+// the Backoff exponent on each run.
 func (b *backoff) Get(ctx context.Context, target string) (*http.Response, error) {
 	var (
 		resp    *http.Response
@@ -93,7 +94,7 @@ func (b *backoff) Get(ctx context.Context, target string) (*http.Response, error
 	return nil, err
 }
 
-// TimeoutError ...
+// TimeoutError verifies if an error was a timeout.
 func TimeoutError(err error) bool {
 	if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
 		return true
