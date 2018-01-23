@@ -45,20 +45,19 @@ func main() {
 	resp, err := request.Get(ctx, *target)
 
 	if contextCanceled(err) {
-		os.Exit(0)
+		return
 	}
 
 	if err != nil && !backoff.TimeoutError(err) {
 		level.Info(logger).Log("msg", "Unexpected error", "err", err)
-		os.Exit(1)
+		return
 	}
 
 	if err != nil && backoff.TimeoutError(err) {
-		os.Exit(0)
+		return
 	}
 
 	level.Info(logger).Log("msg", "Request completed", "stauts_code", resp.StatusCode)
-	os.Exit(0)
 }
 
 func contextCanceled(err error) bool {

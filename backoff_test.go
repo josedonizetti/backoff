@@ -9,7 +9,6 @@ import (
 	"time"
 )
 
-// tests
 type test struct {
 	attempts         int
 	expectedAttempts int
@@ -30,7 +29,6 @@ func TestAllAttemptsTimeoutReturnsTimeoutError(t *testing.T) {
 	for _, test := range tests {
 		actualAttempts := 0
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// TODO: this should probably be atomic
 			actualAttempts++
 			d, _ := time.ParseDuration(test.waitingTime)
 			time.Sleep(d)
@@ -70,7 +68,6 @@ func TestIfAnyAttemptsSucceedsReturnsResponse(t *testing.T) {
 	for _, test := range tests {
 		actualAttempts := 0
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// TODO: this should probably be atomic
 			actualAttempts++
 			d, _ := time.ParseDuration(test.waitingTime)
 			time.Sleep(d)
@@ -86,17 +83,17 @@ func TestIfAnyAttemptsSucceedsReturnsResponse(t *testing.T) {
 		}
 
 		if err != nil {
-			t.Errorf("not expected error: '%v'", err)
+			t.Errorf("not expecting error: '%v'", err)
 			return
 		}
 
 		if resp == nil {
-			t.Error("not expected nil response")
+			t.Error("not expecting nil response")
 			return
 		}
 
 		if resp.StatusCode != http.StatusOK {
-			t.Errorf("expected http code 200 but got %d", resp.StatusCode)
+			t.Errorf("expecting http code 200 but got %d", resp.StatusCode)
 		}
 	}
 }
@@ -113,7 +110,6 @@ func TestExponentIncreasesOnEachAttempt(t *testing.T) {
 	for _, test := range tests {
 		actualAttempts := 0
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// TODO: this should probably be atomic
 			actualAttempts++
 			d, _ := time.ParseDuration(test.waitingTime)
 			time.Sleep(d)
@@ -129,17 +125,17 @@ func TestExponentIncreasesOnEachAttempt(t *testing.T) {
 		}
 
 		if err != nil {
-			t.Errorf("not expected error: '%v'", err)
+			t.Errorf("not expecting error: '%v'", err)
 			return
 		}
 
 		if resp == nil {
-			t.Error("not expected nil response")
+			t.Error("not expecting nil response")
 			return
 		}
 
 		if resp.StatusCode != http.StatusOK {
-			t.Errorf("expected http code 200 but got %d", resp.StatusCode)
+			t.Errorf("expecting http code 200 but got %d", resp.StatusCode)
 		}
 	}
 }
@@ -157,7 +153,6 @@ func TestServerReturnDiffError(t *testing.T) {
 	for _, test := range tests {
 		actualAttempts := 0
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// TODO: this should probably be atomic
 			actualAttempts++
 			w.WriteHeader(http.StatusInternalServerError)
 		}))
@@ -171,17 +166,17 @@ func TestServerReturnDiffError(t *testing.T) {
 		}
 
 		if err != nil {
-			t.Errorf("not expected error: '%v'", err)
+			t.Errorf("not expecting error: '%v'", err)
 			return
 		}
 
 		if resp == nil {
-			t.Error("not expected nil response")
+			t.Error("not expecting nil response")
 			return
 		}
 
 		if resp.StatusCode != http.StatusInternalServerError {
-			t.Errorf("expected http code 500 but got %d", resp.StatusCode)
+			t.Errorf("expecting http code 500 but got %d", resp.StatusCode)
 		}
 	}
 }
@@ -190,7 +185,7 @@ func TestAttemptZeroReturnError(t *testing.T) {
 	logger := log.NewNopLogger()
 	_, err := New(0, 2, logger)
 	if err != ErrAttemptIsZero {
-		t.Errorf("Expeceted ErrAttemptIsZero, got %v", err)
+		t.Errorf("expecting ErrAttemptIsZero, got %v", err)
 	}
 }
 
@@ -198,6 +193,6 @@ func TestExponentZeroReturnError(t *testing.T) {
 	logger := log.NewNopLogger()
 	_, err := New(1, 0, logger)
 	if err != ErrExponentIsZero {
-		t.Errorf("Expeceted ErrExponentIsZero, got %v", err)
+		t.Errorf("expecting ErrExponentIsZero, got %v", err)
 	}
 }
