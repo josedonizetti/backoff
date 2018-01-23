@@ -24,6 +24,11 @@ func main() {
 
 	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stdout))
 
+	if _, err := url.ParseRequestURI(*target); err != nil {
+		level.Info(logger).Log("msg", "Invalid target", "err", err)
+		return
+	}
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
