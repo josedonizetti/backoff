@@ -17,4 +17,8 @@ docker:
 	docker tag $(DOCKER_IMAGE) josedonizetti/backoff:latest
 	rm -rf backoff-linux-amd64
 
-.PHONY: test clean build docker
+push:
+	docker push $(DOCKER_IMAGE)
+	docker push josedonizetti/backoff:latest
+
+.PHONY: test clean build docker push
