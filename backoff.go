@@ -66,9 +66,6 @@ func (b *backoff) Get(ctx context.Context, target string) (*http.Response, error
 			Timeout: time.Second * time.Duration(timeout),
 		}
 
-		// calculate next timeout
-		timeout = timeout * b.exponent
-
 		resp, err = client.Get(target)
 
 		select {
@@ -78,7 +75,11 @@ func (b *backoff) Get(ctx context.Context, target string) (*http.Response, error
 		}
 
 		if TimeoutError(err) {
-			level.Info(b.logger).Log("msg", "Request timeout", "target", target)
+			level.Info(b.logger).Log("msg", "Request timeout", "target", target, "attempt", i+1, "timeout", timeout)
+
+			// calculate next timeout
+			timeout = timeout * b.exponent
+
 			continue
 		}
 
