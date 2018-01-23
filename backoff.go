@@ -5,8 +5,8 @@ import (
 	"errors"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	"net"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -50,6 +50,7 @@ func New(attempts, exponent int, logger log.Logger) (Backoff, error) {
 func (b *backoff) Get(ctx context.Context, target string) (*http.Response, error) {
 	var (
 		resp    *http.Response
+		req     *http.Request
 		err     error
 		timeout int
 	)
@@ -61,7 +62,7 @@ func (b *backoff) Get(ctx context.Context, target string) (*http.Response, error
 			Timeout: time.Second * time.Duration(timeout),
 		}
 
-		req, err := http.NewRequest("GET", target, nil)
+		req, err = http.NewRequest("GET", target, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -90,7 +91,7 @@ func (b *backoff) Get(ctx context.Context, target string) (*http.Response, error
 
 // TimeoutError verifies if an error was a timeout.
 func TimeoutError(err error) bool {
-	if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+	if netErr, ok := err.(*url.Error); ok && netErr.Timeout() {
 		return true
 	}
 	return false
